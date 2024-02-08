@@ -31,6 +31,7 @@ onValue(shoppingListInDB, function(snapshot) {
             let currentItem = itemsArray[i]
             let currentItemID = currentItem[0]
             let currentItemValue = currentItem[1]
+            let isCrossedOut = currentItemValue.crossedOut || false;
             
             appendItemToShoppingListEl(currentItem)
         }    
@@ -48,18 +49,20 @@ function clearInputFieldEl() {
 }
 
 function appendItemToShoppingListEl(item) {
-    let itemID = item[0]
-    let itemValue = item[1]
+    let itemID = item[0];
+    let itemValue = item[1];
     
-    let newEl = document.createElement("li")
-    
-    newEl.textContent = itemValue
-    
+    let newEl = document.createElement("li");
+    newEl.textContent = itemValue;
+
+    newEl.addEventListener("dblclick", function() {
+        let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`);
+        remove(exactLocationOfItemInDB);
+    });
+
     newEl.addEventListener("click", function() {
-        let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`)
-        
-        remove(exactLocationOfItemInDB)
-    })
+        newEl.classList.toggle("strikethrough");
+    });
     
-    shoppingListEl.append(newEl)
+    shoppingListEl.append(newEl);
 }

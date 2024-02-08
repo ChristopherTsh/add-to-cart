@@ -69,3 +69,7 @@ ul li:hover {
     background-color: rgba(150, 142, 26);
     cursor: pointer;
 }
+
+.strikethrough {
+    text-decoration: line-through;
+}
