@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
 
 const appSettings = {
     databaseURL: "https://realtime-database-afae3-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -16,7 +16,7 @@ const shoppingListEl = document.getElementById("shopping-list")
 addButtonEl.addEventListener("click", function() {
     let inputValue = inputFieldEl.value
     
-    push(shoppingListInDB, inputValue)
+    push(shoppingListInDB, { value: inputValue, crossedOut: false })
     
     clearInputFieldEl()
 })
@@ -31,12 +31,11 @@ onValue(shoppingListInDB, function(snapshot) {
             let currentItem = itemsArray[i]
             let currentItemID = currentItem[0]
             let currentItemValue = currentItem[1]
-            let isCrossedOut = currentItemValue.crossedOut || false;
             
-            appendItemToShoppingListEl(currentItem)
+            appendItemToShoppingListEl(currentItemID, currentItemValue)
         }    
     } else {
-        shoppingListEl.innerHTML = "No items here... yet"
+        shoppingListEl.innerHTML = "NOTHING TO DO AT THE MOMENT"
     }
 })
 
@@ -48,12 +47,12 @@ function clearInputFieldEl() {
     inputFieldEl.value = ""
 }
 
-function appendItemToShoppingListEl(item) {
-    let itemID = item[0];
-    let itemValue = item[1];
-    
+function appendItemToShoppingListEl(itemID, itemValue) {
     let newEl = document.createElement("li");
-    newEl.textContent = itemValue;
+    newEl.textContent = itemValue.value;
+    if (itemValue.crossedOut) {
+        newEl.classList.add("strikethrough");
+    }
 
     newEl.addEventListener("dblclick", function() {
         let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`);
@@ -61,6 +60,8 @@ function appendItemToShoppingListEl(item) {
     });
 
     newEl.addEventListener("click", function() {
+        itemValue.crossedOut = !itemValue.crossedOut;
+        set(ref(database, `shoppingList/${itemID}`), itemValue);
         newEl.classList.toggle("strikethrough");
     });
     

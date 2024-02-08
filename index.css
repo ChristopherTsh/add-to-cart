@@ -73,3 +73,9 @@ ul li:hover {
 .strikethrough {
     text-decoration: line-through;
 }
+/* 
+::placeholder {
+    font-family: cursive sans-serif;
+    color: bisque;
+    text-align: center;
+} */
